@@ -19,6 +19,8 @@ public class Camera
 
     Vector3 viewportU, viewportV, deltaU, deltaV, viewportUpperLeft, upperLeftPixel;
 
+    int maximumRecursionDepth;
+
     public void render(HittableList world)
     {
         try 
@@ -48,7 +50,7 @@ public class Camera
                     for (int sample = 0; sample < samplesPerPixel; sample++)
                     {
                         Ray r = getRay(i, j);
-                        pixelColor = Vector3.add(pixelColor, rayColor(r, world));
+                        pixelColor = Vector3.add(pixelColor, rayColor(r, maximumRecursionDepth, world));
                     }
 
                     Vector3.printColor(myWriter, Vector3.mul(pixelColor, sampleScale));
@@ -73,6 +75,8 @@ public class Camera
         imageHeight = (imageHeight1 < 1) ? 1 : imageHeight1;
 
         focalLength = 1.0;
+
+        maximumRecursionDepth = 50;
 
         center = new Vector3(0, 0, 0);
 
@@ -119,14 +123,21 @@ public class Camera
         return new Vector3(Math.random() - 0.5, Math.random() - 0.5, 0);
     }
 
-    public static Vector3 rayColor(Ray r, Hittable world) 
+    public static Vector3 rayColor(Ray r, int maximumRecursionDepth, Hittable world) 
     {
+        if (maximumRecursionDepth <= 0)
+        {
+            return new Vector3(0, 0, 0);
+        }
+
         HitRecord record = new HitRecord();
 
-        if (world.hit(r, 0, Utils.INF, record)) 
+        if (world.hit(r, 0.001, Utils.INF, record)) 
         {
-            Vector3 color1 = Vector3.add(record.normal, new Vector3(1, 1, 1));
-            Vector3 color = Vector3.mul(color1, 0.5);
+            Vector3 direction =Vector3.add(record.normal, Utils.randomOnHemisphere(record.normal));
+            Vector3 colorBeforeBounce = rayColor(new Ray(record.p, direction), maximumRecursionDepth - 1, world);
+
+            Vector3 color = Vector3.mul(colorBeforeBounce, 0.5);
 
             return color;
         }

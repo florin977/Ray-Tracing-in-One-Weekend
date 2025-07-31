@@ -81,6 +81,10 @@ public class Vector3
             double r = Utils.clamp(v.x, 0, 0.999);
             double g = Utils.clamp(v.y, 0, 0.999);
             double b = Utils.clamp(v.z, 0, 0.999);
+
+            r = Utils.linearToGamma(r);
+            g = Utils.linearToGamma(g);
+            b = Utils.linearToGamma(b);
             
             writer.write((int)(r * 256) + " " + (int)(g * 256) + " " + (int)(b * 256) + '\n');
         }
