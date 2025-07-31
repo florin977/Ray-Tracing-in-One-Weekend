@@ -29,9 +29,26 @@ public class Vector3
         return new Vector3(v.x * op, v.y * op, v.z * op);
     }
 
+    public static Vector3 mul(Vector3 v, Vector3 u)
+    {
+        return new Vector3(v.x * u.x, v.y * u.y, v.z * u.z);
+    }
+
     public static Vector3 divide(Vector3 v, double div)
     {
-        return new Vector3(v.x / div, v.y / div, v.z / div);
+        return new Vector3(v.x * (1.0 / div), v.y * (1.0 / div), v.z * (1.0 / div));
+    }
+
+    public double length()
+    {
+        return Math.sqrt(lengthSquared());
+    }
+    
+    public double lengthSquared()
+    {
+        Vector3 aux = new Vector3(this.x * this.x, this.y * this.y, this.z * this.z);
+
+        return aux.x + aux.y + aux.z;
     }
 
     public static double dot(Vector3 a, Vector3 b)
@@ -39,14 +56,9 @@ public class Vector3
         return (a.x * b.x + a.y * b.y + a.z * b.z);
     }
 
-    public double norm()
-    {
-        return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
-    }
-
     public Vector3 unitVector()
     {
-        return divide(this, this.norm());
+        return divide(this, this.length());
     }
 
     public static void print(FileWriter writer, Vector3 v)
@@ -66,7 +78,11 @@ public class Vector3
     {
         try
         {
-            writer.write((int)(v.x * 255.99) + " " + (int)(v.y * 255.99) + " " + (int)(v.z * 255.99) + '\n');
+            double r = Utils.clamp(v.x, 0, 0.999);
+            double g = Utils.clamp(v.y, 0, 0.999);
+            double b = Utils.clamp(v.z, 0, 0.999);
+            
+            writer.write((int)(r * 256) + " " + (int)(g * 256) + " " + (int)(b * 256) + '\n');
         }
         catch (IOException e)
         {

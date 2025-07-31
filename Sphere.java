@@ -3,13 +3,22 @@ public class Sphere extends Hittable
     Vector3 center;
     double radius;
 
+    public Sphere(Vector3 newCenter, double newRadius)
+    {
+        this.center = newCenter;
+        this.radius = newRadius;
+    }
+
     @Override
     public boolean hit(Ray r, double tMin, double tMax, HitRecord record)
     {
-        Vector3 oc = Vector3.sub(center, r.getOrigin());
-        double a = r.getDirection().norm();
-        double h = Vector3.dot(r.getDirection(), oc);
-        double c = oc.norm() - radius * radius;
+        Vector3 rOrigin = r.getOrigin();
+        Vector3 rDirection = r.getDirection();
+
+        Vector3 oc = Vector3.sub(center, rOrigin);
+        double a = rDirection.lengthSquared();
+        double h = Vector3.dot(rDirection, oc);
+        double c = oc.lengthSquared() - radius * radius;
         double delta = h * h - a * c;
 
         if (delta < 0)
@@ -24,15 +33,16 @@ public class Sphere extends Hittable
         {
             solution = (h + sqrtd) / a;
 
-            if (solution <= tMin || tMax >= solution)
+            if (solution <= tMin || solution >= tMax)
             {
                 return false;
             }
         }
 
         record.t = solution;
-        record.p = r.at(record.t);
-        Vector3 outwardNormal = Vector3.divide(Vector3.sub(record.p, center), radius);
+        record.p = r.at(solution);
+        Vector3 nonUnitNormal = Vector3.sub(record.p, center);
+        Vector3 outwardNormal = Vector3.divide(nonUnitNormal, radius);
         record.setFaceNormal(r, outwardNormal);
 
         return true;

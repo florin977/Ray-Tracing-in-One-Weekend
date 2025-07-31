@@ -10,7 +10,8 @@ public class HitRecord
 
     public void setFaceNormal(Ray r, Vector3 outwardNormal) 
     {
-        frontFace = (Vector3.dot(r.getDirection(), outwardNormal)) < 0;
-        normal = frontFace ? normal : Vector3.mul(normal, -1);
+        Vector3 rDirection = r.getDirection();
+        this.frontFace = (Vector3.dot(rDirection, outwardNormal)) < 0.0;
+        this.normal = frontFace ? outwardNormal : Vector3.mul(outwardNormal, -1);
     }
 }

@@ -36,7 +36,10 @@ public class HittableList extends Hittable
             {
                 hitAnything = true;
                 closest = tempRecord.t;
-                record = tempRecord;
+                record.p = tempRecord.p;
+                record.t = tempRecord.t;
+                record.normal = tempRecord.normal;
+                record.frontFace = tempRecord.frontFace;
             }
         }
 
