@@ -134,12 +134,14 @@ public class Camera
 
         if (world.hit(r, 0.001, Utils.INF, record)) 
         {
-            Vector3 direction =Vector3.add(record.normal, Utils.randomOnHemisphere(record.normal));
-            Vector3 colorBeforeBounce = rayColor(new Ray(record.p, direction), maximumRecursionDepth - 1, world);
+            Material.scatterResult scatterObj = new Material.scatterResult();
 
-            Vector3 color = Vector3.mul(colorBeforeBounce, 0.5);
+            if (record.mat.scatter(r, record, scatterObj))
+            {
+                return Vector3.mul(rayColor(scatterObj.scattered, maximumRecursionDepth - 1, world), scatterObj.attenuation);
+            }
 
-            return color;
+            return new Vector3(0, 0, 0);
         }
 
         Vector3 rayDir = r.getDirection();

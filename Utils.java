@@ -51,6 +51,29 @@ public class Utils
         return Vector3.mul(unitVector, -1);
     }
 
+    static boolean nearZero(Vector3 v)
+    {
+        double zero = 1e-8;
+
+        return ((Math.abs(v.x) < zero) && (Math.abs(v.y) < zero) && (Math.abs(v.z) < zero));
+    }
+
+    static Vector3 reflect(Vector3 v, Vector3 normal)
+    {
+        double dotProduct = 2 * Vector3.dot(v, normal);
+
+        return Vector3.sub(v, Vector3.mul(normal, dotProduct));
+    }
+
+    static Vector3 refract(Vector3 v, Vector3 normal, double refractionIndex)
+    {
+        double cosTheta = Math.min(1.0, Vector3.dot(Vector3.mul(v, -1), normal));
+        Vector3 rOutPerpendicular = Vector3.mul(Vector3.add(v, Vector3.mul(normal, cosTheta)), refractionIndex);
+        Vector3 rOutParallel = Vector3.mul(normal, -Math.sqrt(Math.abs(1.0 - rOutPerpendicular.lengthSquared())));
+
+        return Vector3.add(rOutPerpendicular, rOutParallel);
+    }
+
     static double clamp(double x, double min, double max)
     {
         if (x < min)

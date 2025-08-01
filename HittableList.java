@@ -40,6 +40,7 @@ public class HittableList extends Hittable
                 record.t = tempRecord.t;
                 record.normal = tempRecord.normal;
                 record.frontFace = tempRecord.frontFace;
+                record.mat = tempRecord.mat;
             }
         }
 
