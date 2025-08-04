@@ -3,9 +3,22 @@ public class Utils
     final static double INF = 1.79769313486231570e+308d;
     final static double PI = 3.1415926535897932385;
 
-    double degreesToRadians(double degrees)
+    static double degreesToRadians(double degrees)
     {
         return degrees * PI / 180.0;
+    }
+
+    static Vector3 randomUnitInDisk()
+    {
+        while (true)
+        {
+            Vector3 p = new Vector3(randomDouble(-1, 1), randomDouble(-1, 1), 0);
+            
+            if (p.lengthSquared() < 1.0)
+            {
+                return p;
+            }
+        }
     }
 
     static double randomDouble(double min, double max)

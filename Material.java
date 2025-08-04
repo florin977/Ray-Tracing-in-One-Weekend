@@ -73,6 +73,14 @@ public class Material
             this.refractionIndex = newRefractionIndex;
         }
 
+        static double reflectance(double cos, double refractionIndex)
+        {
+            double r0 = (1 - refractionIndex) / (1 + refractionIndex);
+            r0 = r0 * r0;
+
+            return r0 + (1 - r0) * Math.pow((1 - cos), 5);
+        }
+
         @Override
         public boolean scatter(Ray rayIn, HitRecord record, scatterResult scatterObj)
         {
@@ -80,9 +88,25 @@ public class Material
             double ri = record.frontFace ? (1.0 / refractionIndex) : refractionIndex;
 
             Vector3 unitVector = rayIn.getDirection().unitVector();
-            Vector3 refracted = Utils.refract(unitVector, record.normal, ri);
 
-            scatterObj.scattered = new Ray(record.p, refracted);
+                
+            double cosTheta = Math.min(Vector3.dot(Vector3.mul(unitVector, -1.0), record.normal), 1.0);
+            double sinTheta = Math.sqrt(1.0 - cosTheta * cosTheta);
+
+            boolean cannotRefract = ri * sinTheta > 1.0;
+
+            Vector3 direction = new Vector3(0, 0, 0);
+
+            if (cannotRefract || reflectance(cosTheta, ri) > Math.random())
+            {
+                direction = Utils.reflect(unitVector, record.normal);
+            }
+            else 
+            {
+                direction = Utils.refract(unitVector, record.normal, ri);
+            }
+
+            scatterObj.scattered = new Ray(record.p, direction);
 
             return true;
         }

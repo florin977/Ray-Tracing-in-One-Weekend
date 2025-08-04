@@ -9,17 +9,28 @@ public class Camera
     private int imageHeight1;
     int imageHeight;
 
-    int samplesPerPixel;
-    double sampleScale;
+    int samplesPerPixel = 100;
+    double sampleScale = 1.0 / samplesPerPixel;
 
-    double focalLength;
-    Vector3 center;
+    //double focalLength;
 
     double viewportHeight, viewportWidth;
 
     Vector3 viewportU, viewportV, deltaU, deltaV, viewportUpperLeft, upperLeftPixel;
 
-    int maximumRecursionDepth;
+    int maximumRecursionDepth = 50;
+    
+    Vector3 lookFrom = new Vector3(-2, 2, 1);
+    Vector3 lookAt = new Vector3(0, 0, -1.0);
+    Vector3 vUp = new Vector3(0, 1, 0);
+
+    Vector3 center = lookFrom;
+
+    double vfov = 20;
+    Vector3 u, v, w;
+
+    double defocusAngle = 10.0, focusDist = 3.4;
+    Vector3 defocusDiskU, defocusDiskV;
 
     public void render(HittableList world)
     {
@@ -43,6 +54,9 @@ public class Camera
 
             for (int j = 0; j < imageHeight; j++)
             {
+                System.err.print("\rScanlines remaining: " + (imageHeight - j) + " ");
+                System.err.flush();
+
                 for (int i = 0; i < imageWidth; i++)
                 {
                     Vector3 pixelColor = new Vector3(0, 0, 0);
@@ -56,6 +70,8 @@ public class Camera
                     Vector3.printColor(myWriter, Vector3.mul(pixelColor, sampleScale));
                 }
             }
+            
+            System.err.println("\rDone.                   ");
 
             myWriter.close();
         }
@@ -68,24 +84,26 @@ public class Camera
 
     public void init()
     {
-        samplesPerPixel = 100;
         sampleScale = 1.0 / samplesPerPixel;
 
         imageHeight1 = (int) (imageWidth / aspectRatio);
         imageHeight = (imageHeight1 < 1) ? 1 : imageHeight1;
 
-        focalLength = 1.0;
-
-        maximumRecursionDepth = 50;
-
-        center = new Vector3(0, 0, 0);
+        center = lookFrom;
 
         // Viewport size
-        viewportHeight = 2.0;
+        double theta = Utils.degreesToRadians(vfov);
+        double h = Math.tan(theta / 2.0);
+
+        viewportHeight = 2.0 * h  * focusDist;
         viewportWidth = viewportHeight * ((double) imageWidth / imageHeight);
 
-        viewportU = new Vector3(viewportWidth, 0, 0); // right
-        viewportV = new Vector3(0, -viewportHeight, 0); // down
+        w = Vector3.sub(lookFrom, lookAt).unitVector();
+        u = Vector3.cross(vUp, w).unitVector();
+        v = Vector3.cross(w, u);
+
+        viewportU = Vector3.mul(u, viewportWidth); // right
+        viewportV = Vector3.mul(Vector3.mul(v, -1), viewportHeight); // down
 
         // Pixel delta vectors
         deltaU = Vector3.divide(viewportU, imageWidth);
@@ -96,7 +114,7 @@ public class Camera
                 Vector3.sub(
                         Vector3.sub(center, Vector3.divide(viewportU, 2)),
                         Vector3.divide(viewportV, 2)),
-                new Vector3(0, 0, focalLength));
+                Vector3.mul(w, focusDist));
 
         // Pixel (0,0) center position (move half a pixel right and down)
         upperLeftPixel = Vector3.add(
@@ -105,6 +123,10 @@ public class Camera
                         Vector3.mul(deltaU, 0.5),
                         Vector3.mul(deltaV, 0.5)));
 
+        double defocusRadius = focusDist * Math.tan(Utils.degreesToRadians(defocusAngle / 2.0));
+
+        defocusDiskU = Vector3.mul(u, defocusRadius);
+        defocusDiskV = Vector3.mul(v, defocusRadius);
     }
 
     Ray getRay(int i, int j)
@@ -112,7 +134,7 @@ public class Camera
         Vector3 offset = sampleSquare();
         Vector3 pixelSample = Vector3.add(upperLeftPixel, Vector3.add(Vector3.mul(deltaU, (offset.x + i)), Vector3.mul(deltaV, (offset.y + j))));
 
-        Vector3 rayOrigin = center;
+        Vector3 rayOrigin = (defocusAngle <= 0) ? center : defocusDiskSample();
         Vector3 rayDirection = Vector3.sub(pixelSample, rayOrigin);
 
         return new Ray(rayOrigin, rayDirection);
@@ -121,6 +143,13 @@ public class Camera
     Vector3 sampleSquare()
     {
         return new Vector3(Math.random() - 0.5, Math.random() - 0.5, 0);
+    }
+
+    Vector3 defocusDiskSample()
+    {
+        Vector3 p = Utils.randomUnitInDisk();
+
+        return Vector3.add(center, Vector3.add(Vector3.mul(defocusDiskU, p.x), Vector3.mul(defocusDiskV, p.y)));
     }
 
     public static Vector3 rayColor(Ray r, int maximumRecursionDepth, Hittable world) 
