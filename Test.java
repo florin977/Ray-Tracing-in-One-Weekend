@@ -1,3 +1,5 @@
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class Test
 {
     public static void main(String[] args)
@@ -57,8 +59,8 @@ public class Test
 
         cam.aspectRatio = 16.0 / 9.0;
         cam.imageWidth = 1920;
-        cam.samplesPerPixel = 75;
-        cam.maximumRecursionDepth = 50;
+        cam.samplesPerPixel = 200;
+        cam.maximumRecursionDepth = 16;
 
         cam.vfov = 20;
         cam.lookFrom = new Vector3(13, 2, 3);
@@ -83,17 +85,17 @@ public class Test
 
         Vector3[][] buffer = new Vector3[cam.imageHeight][cam.imageWidth];
         
-        int numOfThreads = Runtime.getRuntime().availableProcessors();
+        int freeThreads = 0;
+        int numOfThreads = Runtime.getRuntime().availableProcessors() - freeThreads;
         RenderTask[] threads = new RenderTask[numOfThreads];
 
-        int sliceSize = cam.imageHeight / numOfThreads;
+        long startTime = System.currentTimeMillis();
+
+        AtomicInteger pixelIndex = new AtomicInteger(0);
 
         for (int k = 0; k < numOfThreads; k++)
         {
-            int startY = k * sliceSize;
-            int endY = (k == numOfThreads - 1) ? cam.imageHeight : startY + sliceSize;
-
-            threads[k] = new RenderTask(numOfThreads, startY, endY, cam, world, buffer, k);
+            threads[k] = new RenderTask(numOfThreads, pixelIndex, cam, world, buffer, k);
             threads[k].start();
         }
 
@@ -110,5 +112,9 @@ public class Test
         }
 
         cam.render(buffer);
+        
+        long stopTime = System.currentTimeMillis();
+
+        System.out.println("Total time: " + (stopTime - startTime) / 1000);
     }
 }

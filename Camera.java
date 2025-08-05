@@ -60,7 +60,7 @@ public class Camera
                 }
             }
             
-            System.err.println("\rDone.                   ");
+            System.out.println("\rDone.                   ");
 
             myWriter.close();
         }
