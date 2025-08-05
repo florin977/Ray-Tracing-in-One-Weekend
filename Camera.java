@@ -32,7 +32,7 @@ public class Camera
     double defocusAngle = 10.0, focusDist = 3.4;
     Vector3 defocusDiskU, defocusDiskV;
 
-    public void render(HittableList world)
+    public void render(Vector3[][] buffer)
     {
         try 
         {
@@ -54,20 +54,9 @@ public class Camera
 
             for (int j = 0; j < imageHeight; j++)
             {
-                System.err.print("\rScanlines remaining: " + (imageHeight - j) + " ");
-                System.err.flush();
-
                 for (int i = 0; i < imageWidth; i++)
                 {
-                    Vector3 pixelColor = new Vector3(0, 0, 0);
-                    
-                    for (int sample = 0; sample < samplesPerPixel; sample++)
-                    {
-                        Ray r = getRay(i, j);
-                        pixelColor = Vector3.add(pixelColor, rayColor(r, maximumRecursionDepth, world));
-                    }
-
-                    Vector3.printColor(myWriter, Vector3.mul(pixelColor, sampleScale));
+                    Vector3.printColor(myWriter, Vector3.mul(buffer[j][i], sampleScale));
                 }
             }
             
@@ -152,7 +141,7 @@ public class Camera
         return Vector3.add(center, Vector3.add(Vector3.mul(defocusDiskU, p.x), Vector3.mul(defocusDiskV, p.y)));
     }
 
-    public static Vector3 rayColor(Ray r, int maximumRecursionDepth, Hittable world) 
+    public Vector3 rayColor(Ray r, int maximumRecursionDepth, Hittable world) 
     {
         if (maximumRecursionDepth <= 0)
         {

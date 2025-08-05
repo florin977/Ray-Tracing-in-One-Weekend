@@ -81,6 +81,34 @@ public class Test
 
         cam.init();
 
-        cam.render(world);
+        Vector3[][] buffer = new Vector3[cam.imageHeight][cam.imageWidth];
+        
+        int numOfThreads = Runtime.getRuntime().availableProcessors();
+        RenderTask[] threads = new RenderTask[numOfThreads];
+
+        int sliceSize = cam.imageHeight / numOfThreads;
+
+        for (int k = 0; k < numOfThreads; k++)
+        {
+            int startY = k * sliceSize;
+            int endY = (k == numOfThreads - 1) ? cam.imageHeight : startY + sliceSize;
+
+            threads[k] = new RenderTask(numOfThreads, startY, endY, cam, world, buffer, k);
+            threads[k].start();
+        }
+
+        for (int k = 0; k < numOfThreads; k++)
+        {
+            try
+            {
+                threads[k].join();
+            }
+            catch (InterruptedException e)
+            {
+                e.printStackTrace();
+            }
+        }
+
+        cam.render(buffer);
     }
 }
