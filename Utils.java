@@ -3,12 +3,12 @@ public class Utils
     final static double INF = 1.79769313486231570e+308d;
     final static double PI = 3.1415926535897932385;
 
-    static double degreesToRadians(double degrees)
+    public static double degreesToRadians(double degrees)
     {
         return degrees * PI / 180.0;
     }
 
-    static Vector3 randomUnitInDisk()
+    public static Vector3 randomUnitInDisk()
     {
         while (true)
         {
@@ -68,7 +68,7 @@ public class Utils
     {
         double zero = 1e-8;
 
-        return ((Math.abs(v.x) < zero) && (Math.abs(v.y) < zero) && (Math.abs(v.z) < zero));
+        return ((Math.abs(v.getX()) < zero) && (Math.abs(v.getY()) < zero) && (Math.abs(v.getZ()) < zero));
     }
 
     static Vector3 reflect(Vector3 v, Vector3 normal)

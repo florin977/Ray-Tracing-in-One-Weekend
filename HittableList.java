@@ -35,12 +35,12 @@ public class HittableList extends Hittable
             if (object.hit(r, tMin, closest, tempRecord))
             {
                 hitAnything = true;
-                closest = tempRecord.t;
-                record.p = tempRecord.p;
-                record.t = tempRecord.t;
-                record.normal = tempRecord.normal;
-                record.frontFace = tempRecord.frontFace;
-                record.mat = tempRecord.mat;
+                closest = tempRecord.getT();
+                record.setP(tempRecord.getP());
+                record.setT(tempRecord.getT());
+                record.setNormal(tempRecord.getNormal());
+                record.setFrontFace(tempRecord.getFrontFace());
+                record.setMat(tempRecord.getMat());
             }
         }
 

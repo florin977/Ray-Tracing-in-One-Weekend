@@ -4,33 +4,113 @@ import java.io.IOException;
 
 public class Camera 
 {
-    double aspectRatio = 16.0 / 9.0;
-    int imageWidth = 400;
+    private double aspectRatio = 16.0 / 9.0;
+    private int imageWidth = 400;
     private int imageHeight1;
-    int imageHeight;
+    private int imageHeight;
 
-    int samplesPerPixel = 100;
-    double sampleScale = 1.0 / samplesPerPixel;
+    private int samplesPerPixel = 100;
+    private double sampleScale = 1.0 / samplesPerPixel;
 
     //double focalLength;
 
-    double viewportHeight, viewportWidth;
+    private double viewportHeight, viewportWidth;
 
-    Vector3 viewportU, viewportV, deltaU, deltaV, viewportUpperLeft, upperLeftPixel;
+    private Vector3 viewportU, viewportV, deltaU, deltaV, viewportUpperLeft, upperLeftPixel;
 
-    int maximumRecursionDepth = 50;
+    private int maximumRecursionDepth = 50;
     
-    Vector3 lookFrom = new Vector3(-2, 2, 1);
-    Vector3 lookAt = new Vector3(0, 0, -1.0);
-    Vector3 vUp = new Vector3(0, 1, 0);
+    private Vector3 lookFrom = new Vector3(-2, 2, 1);
+    private Vector3 lookAt = new Vector3(0, 0, -1.0);
+    private Vector3 vUp = new Vector3(0, 1, 0);
 
-    Vector3 center = lookFrom;
+    private Vector3 center = lookFrom;
 
-    double vfov = 20;
-    Vector3 u, v, w;
+    private double vfov = 20;
+    private Vector3 u, v, w;
 
-    double defocusAngle = 10.0, focusDist = 3.4;
-    Vector3 defocusDiskU, defocusDiskV;
+    private double defocusAngle = 10.0, focusDist = 3.4;
+    private Vector3 defocusDiskU, defocusDiskV;
+
+    public Vector3 getU()
+    {
+        return u;
+    }
+
+    public void setAspectRatio(double aspectRatio)
+    {
+        this.aspectRatio = aspectRatio;
+    }
+
+    public void setMaximumRecursionDepth(int maximumRecursionDepth)
+    {
+        this.maximumRecursionDepth = maximumRecursionDepth;
+    }
+
+    public void setSamplesPerPixel(int samplesPerPixel)
+    {
+        this.samplesPerPixel = samplesPerPixel;
+    }
+
+    public void setVfov(int vfov)
+    {
+        this.vfov = vfov;
+    }
+
+    public void setLookFrom(Vector3 lookFrom)
+    {
+        this.lookFrom = lookFrom;
+    }
+
+    public void setLookAt(Vector3 lookAt)
+    {
+        this.lookAt = lookAt;
+    }
+
+    public void setVup(Vector3 vUp)
+    {
+        this.vUp = vUp;
+    }
+
+    public void setDefocusAngle(double defocusAngle)
+    {
+        this.defocusAngle = defocusAngle;
+    }
+
+    public void setFocusDist(double focusDist)
+    {
+        this.focusDist = focusDist;
+    }
+
+    public int getMaximumRecursionDepth()
+    {
+        return maximumRecursionDepth;
+    }
+
+    public int getSamplesPerPixel()
+    {
+        return samplesPerPixel;
+    }
+
+    public int getImageHeight()
+    {
+        return imageHeight;
+    }
+
+    public int getImageWidth()
+    {
+        return imageWidth;
+    }
+
+    public void setImageHeight(int imageHeight)
+    {
+        this.imageHeight = imageHeight;
+    }
+    
+    public void setImageWidth(int imageWidth)
+    {
+        this.imageWidth = imageWidth;
+    }
 
     public void render(Vector3[][] buffer)
     {
@@ -118,10 +198,12 @@ public class Camera
         defocusDiskV = Vector3.mul(v, defocusRadius);
     }
 
-    Ray getRay(int i, int j)
+    public Ray getRay(int i, int j)
     {
+
         Vector3 offset = sampleSquare();
-        Vector3 pixelSample = Vector3.add(upperLeftPixel, Vector3.add(Vector3.mul(deltaU, (offset.x + i)), Vector3.mul(deltaV, (offset.y + j))));
+        
+        Vector3 pixelSample = Vector3.add(upperLeftPixel, Vector3.add(Vector3.mul(deltaU, (offset.getX() + i)), Vector3.mul(deltaV, (offset.getY() + j))));
 
         Vector3 rayOrigin = (defocusAngle <= 0) ? center : defocusDiskSample();
         Vector3 rayDirection = Vector3.sub(pixelSample, rayOrigin);
@@ -129,16 +211,16 @@ public class Camera
         return new Ray(rayOrigin, rayDirection);
     }
 
-    Vector3 sampleSquare()
+    public Vector3 sampleSquare()
     {
         return new Vector3(Math.random() - 0.5, Math.random() - 0.5, 0);
     }
 
-    Vector3 defocusDiskSample()
+    public Vector3 defocusDiskSample()
     {
         Vector3 p = Utils.randomUnitInDisk();
 
-        return Vector3.add(center, Vector3.add(Vector3.mul(defocusDiskU, p.x), Vector3.mul(defocusDiskV, p.y)));
+        return Vector3.add(center, Vector3.add(Vector3.mul(defocusDiskU, p.getX()), Vector3.mul(defocusDiskV, p.getY())));
     }
 
     public Vector3 rayColor(Ray r, int maximumRecursionDepth, Hittable world) 
@@ -152,11 +234,11 @@ public class Camera
 
         if (world.hit(r, 0.001, Utils.INF, record)) 
         {
-            Material.scatterResult scatterObj = new Material.scatterResult();
+            scatterResult scatterObj = new scatterResult();
 
-            if (record.mat.scatter(r, record, scatterObj))
+            if (record.getMat().scatter(r, record, scatterObj))
             {
-                return Vector3.mul(rayColor(scatterObj.scattered, maximumRecursionDepth - 1, world), scatterObj.attenuation);
+                return Vector3.mul(rayColor(scatterObj.getScattered(), maximumRecursionDepth - 1, world), scatterObj.getAttenuation());
             }
 
             return new Vector3(0, 0, 0);
@@ -164,7 +246,7 @@ public class Camera
 
         Vector3 rayDir = r.getDirection();
         Vector3 unitVector = rayDir.unitVector();
-        double a = 0.5 * (unitVector.y + 1.0);
+        double a = 0.5 * (unitVector.getY() + 1.0);
 
         // basic lerp
         Vector3 minColor = Vector3.mul(new Vector3(1.0, 1.0, 1.0), (1.0 - a));

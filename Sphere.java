@@ -1,8 +1,8 @@
 public class Sphere extends Hittable 
 {
-    Vector3 center;
-    double radius;
-    Material mat;
+    private Vector3 center;
+    private double radius;
+    private Material mat;
 
     public Sphere(Vector3 newCenter, double newRadius, Material newMat)
     {
@@ -41,12 +41,12 @@ public class Sphere extends Hittable
             }
         }
 
-        record.t = solution;
-        record.p = r.at(solution);
-        Vector3 nonUnitNormal = Vector3.sub(record.p, center);
+        record.setT(solution);
+        record.setP(r.at(solution));
+        Vector3 nonUnitNormal = Vector3.sub(record.getP(), center);
         Vector3 outwardNormal = Vector3.divide(nonUnitNormal, radius);
         record.setFaceNormal(r, outwardNormal);
-        record.mat = mat;
+        record.setMat(mat);
 
         return true;
     }

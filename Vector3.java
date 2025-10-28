@@ -3,9 +3,24 @@ import java.io.IOException;
 
 public class Vector3 
 {
-    public final double x;
-    public final double y;
-    public final double z;
+    private final double x;
+    private final double y;
+    private final double z;
+
+    public double getX()
+    {
+        return x;
+    }
+
+    public double getY()
+    {
+        return y;
+    }
+
+    public double getZ()
+    {
+        return z;
+    }
 
     public Vector3(double x, double y, double z)
     {
