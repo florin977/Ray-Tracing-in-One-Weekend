@@ -47,7 +47,7 @@ The project recreates the fundamental concepts of ray tracing in a clean, object
 ---
 
 ## Project Structure
-
+```
 Ray-Tracing-in-One-Weekend/
 │
 ├─ Main.java # Entry point of the program; sets up the scene, camera, and triggers the multithreaded render
@@ -61,7 +61,7 @@ Ray-Tracing-in-One-Weekend/
 ├─ HittableList.java # A collection of Hittable objects; tests ray intersections across all scene objects
 ├─ RenderTask.java # Handles a portion of the image in a separate thread to enable parallel rendering
 └─ Utils.java # Helper functions for random sampling, color clamping, and numerical utilities
-
+```
 ## Multithreading
 
 Rendering high-quality images is computationally expensive.  
@@ -70,9 +70,9 @@ To speed up the process, this implementation divides the image into **independen
 Each thread computes its assigned pixels in parallel, and when all threads finish, the results are combined into the final image.  
 This approach allows near-linear scaling with the number of available CPU cores.
 
-## Example ray.ppm for 50 samplesPerPixel and 16 maximumRecursionDepth
+## Example ray.png for 50 samplesPerPixel and 16 maximumRecursionDepth
 
-![Ray.ppm output example](ray.ppm)
+![ray.png example](ray.png)
 
 ## References
 
